@@ -32,12 +32,20 @@
 def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file", help="Archivo html de twitter.com del que se extraerán los usuarios")
+    parser.add_argument("-o", "--output", help="Archivo donde se guardarán los usuarios recuperados, si se omite se usará el archivo usuarios.txt (si no existe)")
     args = parser.parse_args()
     if args.file:
         with open(args.file, "r") as archivo:
             usuarios = getUsuarios(archivo)
-            print sorted(usuarios)
-
+            usuarios = list(sorted(set(usuarios)))
+        if args.output:
+            with open(args.output, "w") as salida:
+                for n in range(0,len(usuarios)):
+                    salida.write("@" + usuarios[n] + "\n")
+        else:
+            with open("usuarios.txt", "w") as salida:
+                for n in range(0,len(usuarios)):
+                    salida.write("@" + usuarios[n] + "\n")
     else:
         print "Debes dar un archivo para trabajar"
         print "Prueba 'twittRegex -h' para más información"
@@ -45,8 +53,8 @@ def main(args):
 
 def getUsuarios(archivo):
     contenido = archivo.read()
-    objRegex = re.findall(r"@(\w+)", contenido)
     usuarios = []
+    objRegex = re.findall(r"@(\w+)", contenido)
     for n in range(0, len(objRegex)):
         usuarios.append(objRegex[n])
     objRegex = re.findall(r"@<\/s><(\w+)>(.*?)<\/(\1)>", contenido)
